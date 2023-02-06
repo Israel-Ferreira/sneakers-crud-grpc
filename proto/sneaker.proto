@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package sneakers;
+
+option go_package = "github.com/Israel-Ferreira/sneakers-crud-grpc/pkg/pb/proto";
+
+
+message Sneaker {
+    int64 id = 1;
+    string model = 2;
+    string manufacturer = 3;
+    string colorway = 4;
+    double price = 5;
+    bool deprecated = 6;
+    repeated int32 available_sizes = 7;
+}
+
+
+message SneakerGetAllReq {}
+
+message SneakerGetByIdReq {
+    int64 id = 1;
+}
+
+message DeleteSneakerMsg {}
+
+message UpdateSneakerMsg {}
+
+
+message SneakerReq {
+    string model = 1;
+    string manufacturer = 2;
+    string colorway = 3;
+    double price = 4;
+    bool deprecated = 5;
+    repeated int32 available_sizes = 6;
+}
+
+
+service SneakerService {
+    rpc GetAll(SneakerGetAllReq) returns (stream Sneaker);
+    rpc GetById(SneakerGetByIdReq) returns (Sneaker);
+    rpc DeleteById(SneakerGetByIdReq) returns (DeleteSneakerMsg);
+    rpc AddSneaker(SneakerReq) returns (Sneaker);
+    rpc UpdateSneaker(SneakerReq) returns (UpdateSneakerMsg);
+}
