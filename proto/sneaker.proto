@@ -6,25 +6,28 @@ option go_package = "github.com/Israel-Ferreira/sneakers-crud-grpc/pkg/pb/proto"
 
 
 message Sneaker {
-    int64 id = 1;
+    string id = 1;
     string model = 2;
     string manufacturer = 3;
     string colorway = 4;
     double price = 5;
     bool deprecated = 6;
-    repeated int32 available_sizes = 7;
 }
 
 
 message SneakerGetAllReq {}
 
 message SneakerGetByIdReq {
-    int64 id = 1;
+    string id = 1;
 }
 
 message DeleteSneakerMsg {}
 
 message UpdateSneakerMsg {}
+
+message AvailableSize {
+    int32 size = 1;
+}
 
 
 message SneakerReq {
@@ -33,7 +36,7 @@ message SneakerReq {
     string colorway = 3;
     double price = 4;
     bool deprecated = 5;
-    repeated int32 available_sizes = 6;
+    repeated int32 available_sizes = 6 [packed=true];
 }
 
 
@@ -43,4 +46,5 @@ service SneakerService {
     rpc DeleteById(SneakerGetByIdReq) returns (DeleteSneakerMsg);
     rpc AddSneaker(SneakerReq) returns (Sneaker);
     rpc UpdateSneaker(SneakerReq) returns (UpdateSneakerMsg);
+    rpc GetAvailableSizes(SneakerGetByIdReq) returns (stream AvailableSize);
 }

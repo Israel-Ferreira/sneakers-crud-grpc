@@ -27,6 +27,7 @@ type SneakerServiceClient interface {
 	DeleteById(ctx context.Context, in *SneakerGetByIdReq, opts ...grpc.CallOption) (*DeleteSneakerMsg, error)
 	AddSneaker(ctx context.Context, in *SneakerReq, opts ...grpc.CallOption) (*Sneaker, error)
 	UpdateSneaker(ctx context.Context, in *SneakerReq, opts ...grpc.CallOption) (*UpdateSneakerMsg, error)
+	GetAvailableSizes(ctx context.Context, in *SneakerGetByIdReq, opts ...grpc.CallOption) (SneakerService_GetAvailableSizesClient, error)
 }
 
 type sneakerServiceClient struct {
@@ -105,6 +106,38 @@ func (c *sneakerServiceClient) UpdateSneaker(ctx context.Context, in *SneakerReq
 	return out, nil
 }
 
+func (c *sneakerServiceClient) GetAvailableSizes(ctx context.Context, in *SneakerGetByIdReq, opts ...grpc.CallOption) (SneakerService_GetAvailableSizesClient, error) {
+	stream, err := c.cc.NewStream(ctx, &SneakerService_ServiceDesc.Streams[1], "/sneakers.SneakerService/GetAvailableSizes", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &sneakerServiceGetAvailableSizesClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type SneakerService_GetAvailableSizesClient interface {
+	Recv() (*AvailableSize, error)
+	grpc.ClientStream
+}
+
+type sneakerServiceGetAvailableSizesClient struct {
+	grpc.ClientStream
+}
+
+func (x *sneakerServiceGetAvailableSizesClient) Recv() (*AvailableSize, error) {
+	m := new(AvailableSize)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // SneakerServiceServer is the server API for SneakerService service.
 // All implementations must embed UnimplementedSneakerServiceServer
 // for forward compatibility
@@ -114,6 +147,7 @@ type SneakerServiceServer interface {
 	DeleteById(context.Context, *SneakerGetByIdReq) (*DeleteSneakerMsg, error)
 	AddSneaker(context.Context, *SneakerReq) (*Sneaker, error)
 	UpdateSneaker(context.Context, *SneakerReq) (*UpdateSneakerMsg, error)
+	GetAvailableSizes(*SneakerGetByIdReq, SneakerService_GetAvailableSizesServer) error
 	mustEmbedUnimplementedSneakerServiceServer()
 }
 
@@ -135,6 +169,9 @@ func (UnimplementedSneakerServiceServer) AddSneaker(context.Context, *SneakerReq
 }
 func (UnimplementedSneakerServiceServer) UpdateSneaker(context.Context, *SneakerReq) (*UpdateSneakerMsg, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateSneaker not implemented")
+}
+func (UnimplementedSneakerServiceServer) GetAvailableSizes(*SneakerGetByIdReq, SneakerService_GetAvailableSizesServer) error {
+	return status.Errorf(codes.Unimplemented, "method GetAvailableSizes not implemented")
 }
 func (UnimplementedSneakerServiceServer) mustEmbedUnimplementedSneakerServiceServer() {}
 
@@ -242,6 +279,27 @@ func _SneakerService_UpdateSneaker_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SneakerService_GetAvailableSizes_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(SneakerGetByIdReq)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(SneakerServiceServer).GetAvailableSizes(m, &sneakerServiceGetAvailableSizesServer{stream})
+}
+
+type SneakerService_GetAvailableSizesServer interface {
+	Send(*AvailableSize) error
+	grpc.ServerStream
+}
+
+type sneakerServiceGetAvailableSizesServer struct {
+	grpc.ServerStream
+}
+
+func (x *sneakerServiceGetAvailableSizesServer) Send(m *AvailableSize) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // SneakerService_ServiceDesc is the grpc.ServiceDesc for SneakerService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -270,6 +328,11 @@ var SneakerService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "GetAll",
 			Handler:       _SneakerService_GetAll_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "GetAvailableSizes",
+			Handler:       _SneakerService_GetAvailableSizes_Handler,
 			ServerStreams: true,
 		},
 	},

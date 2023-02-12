@@ -5,7 +5,7 @@ import (
 )
 
 type Sneaker struct {
-	Id             int64
+	Id             string
 	Model          string
 	Manufacturer   string
 	Colorway       string
@@ -22,13 +22,23 @@ func (snkr *Sneaker) SneakerToPbModel() *pb.Sneaker {
 		Manufacturer:   snkr.Manufacturer,
 		Price:          snkr.Price,
 		Deprecated:     snkr.Deprecated,
-		AvailableSizes: snkr.AvailableSizes,
+	}
+}
+
+func NewSneaker(pbSneaker *pb.SneakerReq) *Sneaker {
+	return &Sneaker{
+		Model:          pbSneaker.Model,
+		Manufacturer:   pbSneaker.Manufacturer,
+		Colorway:       pbSneaker.Colorway,
+		Price:          pbSneaker.Price,
+		Deprecated:     pbSneaker.Deprecated,
+		AvailableSizes: pbSneaker.AvailableSizes,
 	}
 }
 
 var Sneakers = []Sneaker{
 	{
-		Id:             1,
+		Id:             "1",
 		Model:          "AIR FORCE 1 LOW",
 		Manufacturer:   "NIKE",
 		Colorway:       "WHITE",
@@ -37,7 +47,7 @@ var Sneakers = []Sneaker{
 	},
 
 	{
-		Id:             2,
+		Id:             "2",
 		Model:          "FORUM HIGH",
 		Manufacturer:   "ADIDAS",
 		Colorway:       "WHITE/BLACK",
@@ -46,7 +56,7 @@ var Sneakers = []Sneaker{
 	},
 
 	{
-		Id:             3,
+		Id:             "3",
 		Model:          "CHUCK TAYLOR ALL STAR",
 		Manufacturer:   "CONVERSE",
 		Colorway:       "TRADICIONAL",
@@ -54,7 +64,7 @@ var Sneakers = []Sneaker{
 		AvailableSizes: []int32{37, 38, 39, 40, 41, 42, 43, 44, 45, 46},
 	},
 	{
-		Id:             4,
+		Id:             "4",
 		Model:          "SUEDE CLASSIC",
 		Manufacturer:   "PUMA",
 		Colorway:       "PRETO",
